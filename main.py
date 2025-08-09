@@ -6,6 +6,10 @@ import uuid
 
 app = FastAPI()
 
+@app.get("/")
+def home():
+    return {"status": "DeepFace API running"}
+
 @app.post("/verify")
 async def verify_faces(file1: UploadFile = File(...), file2: UploadFile = File(...)):
     try:
@@ -31,7 +35,11 @@ async def verify_faces(file1: UploadFile = File(...), file2: UploadFile = File(.
         os.remove(img1_path)
         os.remove(img2_path)
 
-        return {"verified": result["verified"], "distance": result["distance"]}
+        return {
+            "verified": result["verified"],
+            "distance": result["distance"],
+            "threshold": result["threshold"]
+        }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
