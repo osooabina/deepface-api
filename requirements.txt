@@ -1,9 +1,9 @@
-fastapi
-uvicorn[standard]
-deepface
-opencv-python
-numpy
-python-multipart
+fastapi==0.110.1
+uvicorn[standard]==0.29.0
+deepface==0.0.79
+opencv-python==4.8.0.76
+numpy==1.24.4
+python-multipart==0.0.9
 
 
 
