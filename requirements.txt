@@ -1,5 +1,7 @@
 fastapi
 uvicorn
 deepface
+tensorflow-cpu==2.18.0
 Pillow
+
 
