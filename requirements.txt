@@ -1,9 +1,9 @@
 fastapi
-uvicorn
+uvicorn[standard]
 deepface
-tensorflow-cpu
-tf-keras
-Pillow
+opencv-python
+numpy
+python-multipart
 
 
 
