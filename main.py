@@ -1,23 +1,37 @@
-from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from deepface import DeepFace
-import numpy as np
-from PIL import Image
-import io
+import shutil
+import os
+import uuid
 
 app = FastAPI()
-
-def read_imagefile(file) -> np.ndarray:
-    image = Image.open(io.BytesIO(file))
-    return np.array(image)
 
 @app.post("/verify")
 async def verify_faces(file1: UploadFile = File(...), file2: UploadFile = File(...)):
     try:
-        img1 = read_imagefile(await file1.read())
-        img2 = read_imagefile(await file2.read())
+        # Save uploaded files temporarily
+        img1_path = f"/tmp/{uuid.uuid4()}.jpg"
+        img2_path = f"/tmp/{uuid.uuid4()}.jpg"
 
-        result = DeepFace.verify(img1_path=img1, img2_path=img2)
-        return result
+        with open(img1_path, "wb") as buffer:
+            shutil.copyfileobj(file1.file, buffer)
+
+        with open(img2_path, "wb") as buffer:
+            shutil.copyfileobj(file2.file, buffer)
+
+        # Run DeepFace verification
+        result = DeepFace.verify(
+            img1_path=img1_path,
+            img2_path=img2_path,
+            model_name="Facenet",
+            detector_backend="retinaface"
+        )
+
+        # Clean up temp files
+        os.remove(img1_path)
+        os.remove(img2_path)
+
+        return {"verified": result["verified"], "distance": result["distance"]}
+
     except Exception as e:
-        return JSONResponse(status_code=500, content={"error": str(e)})
+        raise HTTPException(status_code=500, detail=str(e))
